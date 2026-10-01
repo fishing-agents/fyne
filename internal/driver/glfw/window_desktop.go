@@ -76,6 +76,8 @@ type window struct {
 	decorate  bool
 	closing   bool
 	fixedSize bool
+	// neverShown marks the systray monitor, which must not map on Wayland.
+	neverShown bool
 
 	cursor       desktop.Cursor
 	customCursor *glfw.Cursor
@@ -802,8 +804,14 @@ func (w *window) RescaleContext() {
 }
 
 func (w *window) create() {
-	// make the window hidden, we will set it up and then show it later
-	glfw.WindowHint(glfw.Visible, glfw.False)
+	// make the window hidden, we will set it up and then show it later.
+	// Wayland windows start visible as before 2.8.1; a hidden Wayland surface
+	// is configured before it enters an output.
+	if !build.IsWayland || w.neverShown {
+		glfw.WindowHint(glfw.Visible, glfw.False)
+	} else {
+		glfw.WindowHint(glfw.Visible, glfw.True)
+	}
 	if w.decorate {
 		glfw.WindowHint(glfw.Decorated, glfw.True)
 	} else {

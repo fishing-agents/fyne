@@ -88,6 +88,7 @@ func (d *gLDriver) runSystray(m *fyne.Menu) {
 
 	// the only way we know the app was asked to quit is if this window is asked to close...
 	w := d.CreateWindow("SystrayMonitor")
+	w.(*window).neverShown = true
 	w.(*window).create()
 	w.SetCloseIntercept(d.Quit)
 }
